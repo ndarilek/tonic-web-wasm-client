@@ -84,11 +84,15 @@ impl Stream for MessageStream {
     type Item = Result<EchoResponse, Status>;
 
     fn poll_next(mut self: Pin<&mut Self>, _: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        if self.count < 3 {
+        if self.count < 4 {
             self.count += 1;
-            Poll::Ready(Some(Ok(EchoResponse {
-                message: format!("echo({})", self.message),
-            })))
+            // Send an empty message on the second call to test zero-length protobuf handling
+            let message = if self.count == 2 {
+                String::new()
+            } else {
+                format!("echo({})", self.message)
+            };
+            Poll::Ready(Some(Ok(EchoResponse { message })))
         } else {
             Poll::Ready(None)
         }

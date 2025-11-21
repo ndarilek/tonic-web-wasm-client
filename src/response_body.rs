@@ -201,7 +201,10 @@ impl ResponseBody {
                         // Can't read data right now
                         return Ok(());
                     } else {
-                        this.incomplete_data.unsplit(this.buf.take(data_length));
+                        // Handle data (including zero-length messages)
+                        if data_length > 0 {
+                            this.incomplete_data.unsplit(this.buf.take(data_length));
+                        }
 
                         let new_data = this.incomplete_data.split();
 

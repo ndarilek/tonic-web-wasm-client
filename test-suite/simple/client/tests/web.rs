@@ -57,12 +57,14 @@ async fn test_echo_stream() {
         .expect("success stream response")
         .into_inner();
 
-    for i in 0..3 {
+    for i in 0..4 {
         let response = stream_response.message().await.expect("stream message");
         assert!(response.is_some(), "{}", i);
         let response = response.unwrap();
 
-        assert_eq!(response.message, "echo(John)");
+        // Second message is empty to test zero-length protobuf handling
+        let expected = if i == 1 { "" } else { "echo(John)" };
+        assert_eq!(response.message, expected);
     }
 
     let response = stream_response.message().await.expect("stream message");
